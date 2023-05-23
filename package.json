@@ -1,0 +1,35 @@
+{
+  "name": "mongoose-schema-generator",
+  "type": "module",
+  "version": "0.0.1",
+  "description": "cli that generates mongoose schema by scanning the data in a collection",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Ruudeus",
+  "license": "ISC",
+  "dependencies": {
+    "clipboardy": "^3.0.0",
+    "commander": "^10.0.1",
+    "console.table": "^0.10.0",
+    "match-sorter": "^6.3.1",
+    "mongodb": "^5.5.0",
+    "node-localstorage": "^2.2.1",
+    "ora": "^6.3.1"
+  },
+  "bin": {
+    "mongoose-schema-generator": "index.js"
+  },
+  "devDependencies": {
+    "eslint": "^8.2.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-import": "^2.25.3",
+    "eslint-plugin-jsx-a11y": "^6.5.1",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-react": "^7.28.0",
+    "eslint-plugin-react-hooks": "^4.3.0",
+    "prettier": "2.8.8"
+  }
+}
