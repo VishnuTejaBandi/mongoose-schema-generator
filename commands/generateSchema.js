@@ -4,11 +4,11 @@ import { MongoClient } from 'mongodb';
 import clipboard from 'clipboardy';
 import { errorWrapper, getConnections, getTypeOfElement, types } from '../utils/index.js';
 
-function mergeObjectSchemas(schemaA, scehmaB) {
-  const keys = new Set([...Object.keys(schemaA), ...Object.keys(scehmaB)]);
+function mergeObjectSchemas(schemaA, schemaB) {
+  const keys = new Set([...Object.keys(schemaA), ...Object.keys(schemaB)]);
   const schema = {};
   keys.forEach((key) => {
-    schema[key] = mergeSchemas(schemaA[key], scehmaB[key]);
+    schema[key] = mergeSchemas(schemaA[key], schemaB[key]);
   });
   return schema;
 }

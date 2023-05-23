@@ -16,7 +16,8 @@
     "match-sorter": "^6.3.1",
     "mongodb": "^5.5.0",
     "node-localstorage": "^2.2.1",
-    "ora": "^6.3.1"
+    "ora": "^6.3.1",
+    "os": "^0.1.2"
   },
   "bin": {
     "mongoose-schema-generator": "index.js"

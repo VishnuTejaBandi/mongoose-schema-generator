@@ -1,7 +1,11 @@
+#!/usr/bin/env node
+
 import { program } from 'commander';
 import { LocalStorage } from 'node-localstorage';
 // eslint-disable-next-line no-unused-vars
 import cTable from 'console.table';
+import os from 'os';
+import path from 'path';
 import {
   addConnection,
   editConnection,
@@ -12,7 +16,7 @@ import {
   showDbs,
 } from './commands/index.js';
 
-global.localStorage = new LocalStorage('/.mongoose-schema-generator/.local-storage');
+global.localStorage = new LocalStorage(path.resolve(os.homedir(), '.mongoose-schema-generator/.local-storage'));
 
 program
   .name('mongoose-schema-generator')
