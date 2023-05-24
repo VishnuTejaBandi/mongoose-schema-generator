@@ -109,6 +109,7 @@ export async function mergeSchemasByPage({ collection, pageSize = 100, sampleSiz
 }
 
 function generatePrettySchemaForArray([value]) {
+  if (!value) return [];
   const type = getTypeOfElement(value);
   if (type === types.Array) return [generatePrettySchemaForArray(value)];
   if (type === types.Object) return [generatePrettySchemaForObject(value)];
@@ -121,10 +122,12 @@ export function generatePrettySchemaForObject(obj) {
   for (const key in obj) {
     if (Object.hasOwnProperty.call(obj, key)) {
       const value = obj[key];
-      const type = getTypeOfElement(value);
-      if (type === types.Array) schema[key] = generatePrettySchemaForArray(value);
-      else if (type === types.Object) schema[key] = generatePrettySchemaForObject(value);
-      else schema[key] = typeNumberToString[value];
+      if (value) {
+        const type = getTypeOfElement(value);
+        if (type === types.Array) schema[key] = generatePrettySchemaForArray(value);
+        else if (type === types.Object) schema[key] = generatePrettySchemaForObject(value);
+        else schema[key] = typeNumberToString[value];
+      }
     }
   }
 

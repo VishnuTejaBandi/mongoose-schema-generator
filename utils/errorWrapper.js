@@ -3,7 +3,9 @@ export function errorWrapper(func) {
     try {
       await func(...args);
     } catch (err) {
-      console.error(`error: ${err.message}`);
+      if (process.env.DISPLAY_STACK_TRACE === 'true') {
+        console.error(err);
+      } else console.error(`error: ${err.message}`);
     }
   };
 }
