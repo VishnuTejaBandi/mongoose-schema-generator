@@ -6,4 +6,4 @@ export * from './editConnection.js';
 
 export * from './showDbs.js';
 export * from './searchCollections.js';
-export * from './generateSchema.js';
+export * from './generateSchmea/index.js';

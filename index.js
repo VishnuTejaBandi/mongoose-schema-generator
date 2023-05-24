@@ -70,8 +70,8 @@ program
   .argument('<connection>', 'name of the connection')
   .requiredOption('-DB, --db <db>', 'name of the db')
   .requiredOption('-C, --collection <collection>', 'name of the collection')
-  .option('-W, --workers <workers>', 'number of workers', '5')
   .option('-S, --sampleSize <sampleSize>', 'sample size', '500')
+  .option('-P, --pageSize <pageSize>', 'page size for each worker', '100')
   .action(generateSchema);
 
 program.parse();

@@ -17,6 +17,8 @@ export const types = {
   Mixed: 15,
 };
 
+export const typeNumberToString = Object.assign({}, ...Object.keys(types).map((x) => ({ [types[x]]: x })));
+
 export function getTypeOfElement(element) {
   return types[element.constructor.name];
 }

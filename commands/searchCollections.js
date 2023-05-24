@@ -24,7 +24,7 @@ async function handler(name, { db, count, search }) {
     for (let i = 0; i < collections.length; i += 1) {
       const collectionName = collections[i];
       result.push({
-        name,
+        name: collectionName,
         // eslint-disable-next-line no-await-in-loop
         'Count of documents': await database.collection(collectionName).countDocuments(),
       });

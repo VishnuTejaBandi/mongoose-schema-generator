@@ -1,8 +1,5 @@
 /* eslint-disable no-use-before-define */
-import ora from 'ora';
-import { MongoClient } from 'mongodb';
-import clipboard from 'clipboardy';
-import { errorWrapper, getConnections, getTypeOfElement, types } from '../utils/index.js';
+import { getTypeOfElement, typeNumberToString, types } from '../../utils/index.js';
 
 function mergeObjectSchemas(schemaA, schemaB) {
   const keys = new Set([...Object.keys(schemaA), ...Object.keys(schemaB)]);
@@ -17,7 +14,7 @@ function mergeArraySchemas(schemaA, schemaB) {
   return [mergeSchemas(schemaA[0], schemaB[0])];
 }
 
-function mergeSchemas(schemaA, schemaB) {
+export function mergeSchemas(schemaA, schemaB) {
   if (!schemaB) return schemaA;
   if (!schemaA) return schemaB;
 
@@ -36,7 +33,7 @@ function mergeSchemas(schemaA, schemaB) {
   return types.Mixed;
 }
 
-export function getSchemaOfObject(obj) {
+function getSchemaOfObject(obj) {
   const schema = {};
   const keys = Object.keys(obj);
   keys.forEach((key) => {
@@ -57,7 +54,7 @@ export function getSchemaOfObject(obj) {
   return schema;
 }
 
-export function getSchemaOfArray(arr) {
+function getSchemaOfArray(arr) {
   if (!arr[0]) return [];
 
   const predictedType = getTypeOfElement(arr[0]);
@@ -84,26 +81,52 @@ export function getSchemaOfArray(arr) {
   return [types.Mixed];
 }
 
-async function handler(name, { collection, db, sampleSize, workers }) {
-  let spinner;
-  let client;
-  try {
-    spinner = ora('Loading...').start();
-    const connection = getConnections().find((item) => item.name === name);
-    if (!connection) throw new Error(`Connection with name ${name} not found`);
-
-    client = new MongoClient(connection.url);
-    await client.connect();
-    const database = client.db(db);
-
-    spinner.stop();
-    const documents = await database.collection(collection).find().limit(1000).toArray();
-    clipboard.writeSync(JSON.stringify(getSchemaOfArray(documents)[0]));
-    console.log(JSON.stringify(getSchemaOfArray(documents)[0], null, 2));
-  } finally {
-    spinner?.stop();
-    await client?.close();
+export async function mergeSchemasByPage({ collection, pageSize = 100, sampleSize }) {
+  if (sampleSize < pageSize) pageSize = sampleSize;
+  const promises = [];
+  const totalPages = Math.ceil(sampleSize / pageSize);
+  for (let page = 0; page < totalPages; page += 1) {
+    const limit = page === totalPages - 1 ? sampleSize - pageSize * page : pageSize;
+    promises.push(
+      collection
+        .find()
+        .skip(page * pageSize)
+        .limit(limit)
+        .toArray()
+        .then((docs) => {
+          const [schema] = getSchemaOfArray(docs);
+          return schema;
+        })
+    );
   }
+
+  const schemas = await Promise.all(promises);
+  let result = schemas[0];
+  schemas.slice(1).forEach((schema) => {
+    result = mergeSchemas(result, schema);
+  });
+  return result;
 }
 
-export const generateSchema = errorWrapper(handler);
+function generatePrettySchemaForArray([value]) {
+  const type = getTypeOfElement(value);
+  if (type === types.Array) return [generatePrettySchemaForArray(value)];
+  if (type === types.Object) return [generatePrettySchemaForObject(value)];
+  return [typeNumberToString[value]];
+}
+
+export function generatePrettySchemaForObject(obj) {
+  const schema = {};
+  // eslint-disable-next-line no-restricted-syntax
+  for (const key in obj) {
+    if (Object.hasOwnProperty.call(obj, key)) {
+      const value = obj[key];
+      const type = getTypeOfElement(value);
+      if (type === types.Array) schema[key] = generatePrettySchemaForArray(value);
+      else if (type === types.Object) schema[key] = generatePrettySchemaForObject(value);
+      else schema[key] = typeNumberToString[value];
+    }
+  }
+
+  return schema;
+}
