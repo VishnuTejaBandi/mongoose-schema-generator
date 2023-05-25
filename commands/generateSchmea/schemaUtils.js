@@ -5,7 +5,7 @@ function mergeObjectSchemas(schemaA, schemaB) {
   const keys = new Set([...Object.keys(schemaA), ...Object.keys(schemaB)]);
   const schema = {};
   keys.forEach((key) => {
-    schema[key] = mergeSchemas(schemaA[key], schemaB[key]);
+    if (!(schemaB == null && schemaA == null)) schema[key] = mergeSchemas(schemaA[key], schemaB[key]);
   });
   return schema;
 }
@@ -15,8 +15,8 @@ function mergeArraySchemas(schemaA, schemaB) {
 }
 
 export function mergeSchemas(schemaA, schemaB) {
-  if (!schemaB) return schemaA;
-  if (!schemaA) return schemaB;
+  if (schemaB == null) return schemaA;
+  if (schemaA == null) return schemaB;
 
   const type = getTypeOfElement(schemaA);
   if (type === getTypeOfElement(schemaB)) {
@@ -55,7 +55,7 @@ function getSchemaOfObject(obj) {
 }
 
 function getSchemaOfArray(arr) {
-  if (!arr[0]) return [];
+  if (arr[0] == null) return [];
 
   const predictedType = getTypeOfElement(arr[0]);
   const allElementsHaveSameType = arr.slice(1).every((schema) => getTypeOfElement(schema) === predictedType);
@@ -108,26 +108,24 @@ export async function mergeSchemasByPage({ collection, pageSize = 100, sampleSiz
   return result;
 }
 
-function generatePrettySchemaForArray([value]) {
-  if (!value) return [];
+function generateRawSchemaForArray([value]) {
+  if (value == null) return [];
   const type = getTypeOfElement(value);
-  if (type === types.Array) return [generatePrettySchemaForArray(value)];
-  if (type === types.Object) return [generatePrettySchemaForObject(value)];
+  if (type === types.Array) return [generateRawSchemaForArray(value)];
+  if (type === types.Object) return [generateRawSchemaForObject(value)];
   return [typeNumberToString[value]];
 }
 
-export function generatePrettySchemaForObject(obj) {
+export function generateRawSchemaForObject(obj) {
   const schema = {};
   // eslint-disable-next-line no-restricted-syntax
   for (const key in obj) {
     if (Object.hasOwnProperty.call(obj, key)) {
       const value = obj[key];
-      if (value) {
-        const type = getTypeOfElement(value);
-        if (type === types.Array) schema[key] = generatePrettySchemaForArray(value);
-        else if (type === types.Object) schema[key] = generatePrettySchemaForObject(value);
-        else schema[key] = typeNumberToString[value];
-      }
+      const type = getTypeOfElement(value);
+      if (type === types.Array) schema[key] = generateRawSchemaForArray(value);
+      else if (type === types.Object) schema[key] = generateRawSchemaForObject(value);
+      else schema[key] = typeNumberToString[value];
     }
   }
 

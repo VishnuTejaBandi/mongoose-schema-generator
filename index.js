@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable no-extend-native */
 
 import { program } from 'commander';
 import { LocalStorage } from 'node-localstorage';
@@ -15,6 +16,22 @@ import {
   showConnections,
   showDbs,
 } from './commands/index.js';
+
+if (!String.prototype.replaceAll) {
+  String.prototype.replaceAll = function replaceAll(str, newStr) {
+    // If a regex pattern
+    if (Object.prototype.toString.call(str).toLowerCase() === '[object regexp]') {
+      return this.replace(str, newStr);
+    }
+
+    // If a string
+    return this.replace(new RegExp(str, 'g'), newStr);
+  };
+}
+
+String.prototype.capitalize = function capitalize() {
+  return this.charAt(0).toUpperCase() + this.slice(1);
+};
 
 global.localStorage = new LocalStorage(path.resolve(os.homedir(), '.mongoose-schema-generator/.local-storage'));
 
@@ -72,6 +89,7 @@ program
   .requiredOption('-C, --collection <collection>', 'name of the collection')
   .option('-S, --sampleSize <sampleSize>', 'sample size', '500')
   .option('-P, --pageSize <pageSize>', 'page size for each worker', '100')
+  .option('-R, --raw', 'displays raw schema instead of mongoose schema')
   .action(generateSchema);
 
 program.parse();

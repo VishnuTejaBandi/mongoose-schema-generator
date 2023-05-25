@@ -3,9 +3,10 @@ import ora from 'ora';
 import clipboard from 'clipboardy';
 import { MongoClient } from 'mongodb';
 import { errorWrapper, getConnections } from '../../utils/index.js';
-import { generatePrettySchemaForObject, mergeSchemasByPage } from './schemaUtils.js';
+import { generateRawSchemaForObject, mergeSchemasByPage } from './schemaUtils.js';
+import { MongooseSchemaGenerator } from './generateMongooseSchema.js';
 
-async function handler(name, { collection: collectionName, db, sampleSize, pageSize }) {
+async function handler(name, { collection: collectionName, db, sampleSize, pageSize, raw }) {
   sampleSize = parseInt(sampleSize, 10) || 500;
   pageSize = parseInt(pageSize, 10) || 100;
 
@@ -20,11 +21,22 @@ async function handler(name, { collection: collectionName, db, sampleSize, pageS
     const database = client.db(db);
     const collection = database.collection(collectionName);
 
-    const schema = generatePrettySchemaForObject(await mergeSchemasByPage({ collection, pageSize, sampleSize }));
+    const schema = await mergeSchemasByPage({ collection, pageSize, sampleSize });
 
+    let result;
+    if (raw) {
+      result = JSON.stringify(generateRawSchemaForObject(schema), null, 2);
+    } else {
+      const mongooseSchemaGenerator = new MongooseSchemaGenerator(schema);
+      mongooseSchemaGenerator.generate();
+      result = mongooseSchemaGenerator.schema;
+    }
     spinner.stop();
-    clipboard.writeSync(JSON.stringify(schema));
-    console.log(JSON.stringify(schema, null, 2));
+    clipboard.writeSync(result);
+    console.log(
+      '---------------------------------------------------------\n\n!!! Generated schema has been copied to clipboard !!!\n\n---------------------------------------------------------\n'
+    );
+    console.log(result);
   } finally {
     spinner?.stop();
     client?.close();
