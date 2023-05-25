@@ -24,8 +24,7 @@ export function showConnections() {
   const connections = getConnections();
   if (connections[0]) {
     const columnSize = process.stdout.columns;
-    const maxSizeOfname = Math.max(connections.map((item) => item.name.length));
-
+    const maxSizeOfname = Math.max(...connections.map((item) => item.name.length));
     const sizeForName = Math.min(maxSizeOfname, parseInt(columnSize / 4, 10));
     let sizeForUrl = parseInt(columnSize - sizeForName, 10);
 
