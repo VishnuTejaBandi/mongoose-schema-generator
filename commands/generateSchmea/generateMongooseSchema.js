@@ -2,6 +2,8 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-use-before-define */
 import prettier from 'prettier';
+import varname from 'varname';
+
 import { getTypeOfElement, types } from '../../utils/index.js';
 
 const typesToMongooseTypes = {
@@ -71,7 +73,7 @@ export class MongooseSchemaGenerator {
   }
 
   convertObjectsToSchemas({ obj, property }) {
-    const schemaName = `${property}Schema`;
+    const schemaName = varname.camelback(`${property}Schema`);
     for (const key in obj) {
       if (Object.hasOwnProperty.call(obj, key)) {
         const value = obj[key];
