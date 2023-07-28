@@ -88,7 +88,7 @@ program
   .requiredOption('-DB, --db <db>', 'name of the db')
   .requiredOption('-C, --collection <collection>', 'name of the collection')
   .option('-S, --sampleSize <sampleSize>', 'sample size', '500')
-  .option('-P, --pageSize <pageSize>', 'page size for each worker', '100')
+  .option('-P, --pageSize <pageSize>', 'page size for each data request', '100')
   .option('-R, --raw', 'displays raw schema instead of mongoose schema')
   .action(generateSchema);
 
